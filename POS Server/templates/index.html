@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Card Login</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Login to Your Card</h1>
+        <input type="text" id="card" placeholder="Enter credit card number" />
+        <button onclick="login()">Login</button>
+        <div id="result"></div>
+        <img id="barcode" src="" alt="" style="display:none; margin-top:20px;" />
+    </div>
+
+    <script>
+        function login() {
+            const card = document.getElementById("card").value;
+            fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ card_number: card })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const result = document.getElementById("result");
+                const barcode = document.getElementById("barcode");
+                if (data.success) {
+                    result.innerHTML = `Welcome <strong>${data.name}</strong>!<br>Balance: <strong>$${data.balance}</strong>`;
+                    barcode.src = `https://barcodeapi.org/api/128/${card}`;
+                    barcode.style.display = "block";
+                } else {
+                    result.textContent = "Login failed.";
+                    barcode.style.display = "none";
+                }
+            })
+            .catch(err => {
+                document.getElementById("result").textContent = "Error: " + err;
+            });
+        }
+    </script>
+</body>
+</html>
